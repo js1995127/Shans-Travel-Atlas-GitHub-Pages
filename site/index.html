@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#081210" />
+    <meta name="description" content="An interactive bilingual atlas of journeys and photographs." />
+    <title>Shan's Travel Atlas</title>
+    <link rel="icon" href="./icon.svg" />
+    <link rel="stylesheet" href="./vendor/maplibre-gl.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <noscript>这个旅行地图需要启用 JavaScript。This travel atlas requires JavaScript.</noscript>
+
+    <div class="app" id="app">
+      <header class="topbar">
+        <button class="brand" id="home-button" aria-label="返回世界地图">
+          <span class="brand-mark" aria-hidden="true">◎</span>
+          <span>
+            <strong id="brand-title">山的世界旅行地图</strong>
+            <small id="brand-kicker">TRAVEL ATLAS</small>
+          </span>
+        </button>
+
+        <div class="top-actions">
+          <button class="quiet-button" id="random-button">
+            <span aria-hidden="true">↝</span>
+            <span data-i18n="random">随机旅行</span>
+          </button>
+          <button class="language-button" id="language-button" aria-label="Switch language">
+            <span class="language-current">中</span><span class="language-divider">/</span><span>EN</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="stage">
+        <section class="map-panel" aria-label="Interactive world map">
+          <div id="map"></div>
+          <div class="map-vignette" aria-hidden="true"></div>
+
+          <section class="hero-copy" id="hero-copy">
+            <p class="eyebrow" data-i18n="eyebrow">A LIFE IN MOTION · 一生在路上</p>
+            <h1 id="hero-title">把世界<br />走成一本相册</h1>
+            <p id="hero-subtitle">拖动地图，点击发光的地点，重新走进那些抵达过的时刻。</p>
+          </section>
+
+          <div class="map-stats" id="map-stats" aria-live="polite">
+            <div><strong id="stat-photos">—</strong><span data-i18n="photos">张照片</span></div>
+            <div><strong id="stat-places">—</strong><span data-i18n="places">个地点</span></div>
+            <div><strong id="stat-countries">—</strong><span data-i18n="countries">个国家</span></div>
+          </div>
+
+          <div class="map-hint" id="map-hint">
+            <span class="hint-orbit" aria-hidden="true"></span>
+            <span data-i18n="mapHint">拖动世界 · 点击光点</span>
+          </div>
+
+          <div class="demo-badge hidden" id="demo-badge" data-i18n="demoBadge">示例模式 · 放入照片后自动替换</div>
+        </section>
+
+        <aside class="explorer" id="explorer">
+          <div class="explorer-head">
+            <div>
+              <p class="eyebrow" data-i18n="archive">JOURNEY ARCHIVE · 旅行档案</p>
+              <h2 data-i18n="discover">发现一段旅程</h2>
+            </div>
+            <button class="mobile-map-button" id="mobile-map-button" aria-label="显示或隐藏地图">⌁</button>
+          </div>
+
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="search-input" type="search" autocomplete="off" placeholder="搜索国家、城市或旅程" />
+          </label>
+
+          <div class="filter-row">
+            <label class="select-wrap">
+              <span class="sr-only" data-i18n="album">旅程</span>
+              <select id="album-select"><option value="all">全部旅程</option></select>
+            </label>
+            <button class="sort-button active" id="sort-button" data-sort="count">
+              <span data-i18n="sortPopular">按照片数量</span><span aria-hidden="true">↓</span>
+            </button>
+          </div>
+
+          <div class="place-list" id="place-list" aria-live="polite"></div>
+
+          <footer class="explorer-footer">
+            <span>© <span id="footer-owner">Shan</span></span>
+            <span>Natural Earth · OpenStreetMap</span>
+          </footer>
+        </aside>
+      </main>
+
+      <section class="place-drawer" id="place-drawer" aria-hidden="true" aria-label="Location photographs">
+        <button class="drawer-close" id="drawer-close" aria-label="关闭">×</button>
+        <div class="drawer-hero" id="drawer-hero">
+          <div class="drawer-hero-shade"></div>
+          <div class="drawer-title-wrap">
+            <p id="drawer-country"></p>
+            <h2 id="drawer-title"></h2>
+            <span id="drawer-count"></span>
+          </div>
+        </div>
+        <div class="drawer-body">
+          <div class="drawer-loading" id="drawer-loading" data-i18n="loading">正在打开这段旅程…</div>
+          <div class="photo-grid" id="photo-grid"></div>
+          <button class="load-more hidden" id="load-more" data-i18n="loadMore">继续浏览</button>
+          <div class="empty-place hidden" id="empty-place">
+            <span>✦</span>
+            <h3 data-i18n="emptyTitle">这里正等待你的照片</h3>
+            <p data-i18n="emptyBody">把按地点命名的照片放进 photos 文件夹，地图会自动更新。</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+        <button class="lightbox-close" id="lightbox-close" aria-label="关闭大图">×</button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="上一张">‹</button>
+        <figure>
+          <img id="lightbox-image" alt="" />
+          <figcaption id="lightbox-caption"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="下一张">›</button>
+      </div>
+
+      <div class="toast" id="toast" aria-live="polite"></div>
+    </div>
+  </body>
+</html>
